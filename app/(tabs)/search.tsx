@@ -6,6 +6,7 @@ import {fetchMovies} from "@/services/api";
 import {icons} from "@/constants/icons";
 import SearchBar from "@/components/SearchBar";
 import {useEffect, useState} from "react";
+import {updateSearchCount} from "@/services/appwrite";
 
 
 const Search = () => {
@@ -27,7 +28,7 @@ const Search = () => {
         // 500ms after user stops searching.
         const timeoutId = setTimeout(async () => {
         if(searchQuery.trim()) {
-           await loadMovies()
+            await loadMovies();
         } else {
             reset()
         }
@@ -35,6 +36,12 @@ const Search = () => {
 
         return () => clearTimeout(timeoutId)
     },[searchQuery])
+
+    useEffect(() => {
+        if(movies?.length > 0 && movies[0]) {
+            updateSearchCount(searchQuery, movies[0]);
+        }
+    }, [movies])
 
     return (
         <View className='flex-1 bg-primary'>
@@ -64,7 +71,7 @@ const Search = () => {
                         <SearchBar
                             placeholder='Search movies...'
                             value = {searchQuery}
-                            onChangeText = {(text : string) => setSearchQuery(text)}
+                            onChangeText = {setSearchQuery}
                         />
                     </View>
                     {loading && (
